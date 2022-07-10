@@ -4,24 +4,10 @@ const reducer = (state,action) => {
     }else if(action.type==='REMOVE'){
        return {...state,cart:state.cart.filter((cartItem)=>cartItem.id!=action.payload)} 
     }else if(action.type==='INCREASE'){
-        let tempCart = state.cart.map((cartItem)=>{
-             if(cartItem.id===action.payload){
-               return {...cartItem,amount:cartItem.amount+1}
-             }
-
-             return cartItem;
-        });
-
+        let tempCart = handleChange(state,action)
         return {...state,cart:tempCart}
     }else if(action.type==='DECREASE'){
-        let tempCart = state.cart.map((cartItem)=>{
-             if(cartItem.id===action.payload){
-               return {...cartItem,amount:cartItem.amount-1}
-             }
-
-             return cartItem;
-        }).filter((cartItem)=>cartItem.amount!=0);
-        
+        let tempCart = handleChange(state,action)
         return {...state,cart:tempCart}
     }else if(action.type=='GET_TOTALS'){
         let{total,amount} = state.cart.reduce((cartTotal,cartItem)=>{
@@ -43,7 +29,20 @@ const reducer = (state,action) => {
     }else if(action.type=='DISPLAY_ITEMS'){
         return {...state,cart:action.payload,loading:false}
     }
-    return state
+    
+    throw new Error('No matching action type')
+}
+
+const handleChange = (state,action) => {
+    let tempCart = state.cart.map((cartItem)=>{
+        if(cartItem.id===action.payload){
+          return {...cartItem,amount:(action.type=='INCREASE'?cartItem.amount+1:cartItem.amount-1)}
+        }
+
+        return cartItem;
+   }).filter((cartItem)=>cartItem.amount!=0);
+
+   return tempCart;
 }
 
 export default reducer
